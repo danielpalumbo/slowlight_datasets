@@ -1,0 +1,85 @@
+backend = "CPU"
+created = "2026-10-29T06:46:26.726"
+julia = "1.10.12"
+
+[bands]
+band = [3, 4, 5, 6, 7, 8, 9]
+nu_GHz = [97.5, 145.0, 203.0, 233.0, 343.5, 405.0, 679.0]
+target_Jy = [2.0, 2.1732122917406667, 2.331759654404123, 2.4, 2.1696157675923557, 2.0786696501912587, 1.8173460855143797]
+target_frac_err = [0.1, 0.1, 0.1, 0.1, 0.1, 0.15, 0.2]
+
+[camera]
+arc = 0.1
+core = [0.001, 0.1]
+critical_curve_centre_alpha_M = 1.0950642924230516
+inner = 0.04
+kind = "annuli about the critical curve (scripts/SlowLight.jl ring_camera)"
+"nψring" = 120
+outer = 0.04
+rays = 26714
+ring = [0.93, 1.55, 0.006]
+samples_per_ray = 120
+"ρmax" = 80.0
+
+[kerrsplat]
+repo = "https://github.com/danielpalumbo/kerrsplat"
+rev = "49e003a8b6f4c34d50c5992878e18b1bc1de475b"
+
+[light_curves]
+dt_M = 1.0
+frames = 4225
+hours = 24.00217758185868
+t0_M = 0.0
+tmax_M = 4224.0
+
+[model]
+dominant_region = "disk"
+parcels = 2579
+seed = 101
+
+    [model.disk]
+    T0_K = 2.8796005319111237e11
+    density_slope = -2.8199045508204126
+    n0_cm3 = 1.1925032297264369e8
+    nactive = 32.0
+    parcels = 1558
+    share_band3 = 0.758967075600802
+    share_band6 = 0.7363332387326719
+    share_band9 = 0.7318378509301294
+    temperature_slope = -0.2566117717262035
+    x = [18.596735396095042, 26.386087603264514, -0.2566117717262035, -2.8199045508204126]
+
+    [model.funnel]
+    T0_K = 1.3167552615026299e11
+    density_slope = -0.7110002373123688
+    n0_cm3 = 1.0283137670629803e6
+    nactive = 4.0
+    parcels = 258
+    share_band3 = 0.17842737217024243
+    share_band6 = 0.1896808068555864
+    share_band9 = 0.20183588662031385
+    temperature_slope = 0.0784588470354962
+    x = [13.843430899305217, 25.603606598132927, 0.0784588470354962, -0.7110002373123688]
+
+    [model.jet]
+    T0_K = 3.2461879553570496e11
+    density_slope = -2.3963189235030273
+    n0_cm3 = 5.484339013365116e7
+    nactive = 4.0
+    parcels = 763
+    share_band3 = 0.10874433370256081
+    share_band6 = 0.084245287901191
+    share_band9 = 0.06731260514831958
+    temperature_slope = -0.37010289322766327
+    x = [17.819992229377366, 26.505917394034174, -0.37010289322766327, -2.3963189235030273]
+
+[source]
+GM_over_c2_cm = 6.1326748420039e11
+GM_over_c3_s = 20.45640134817501
+distance_kpc = 8.178
+mass_Msun = 4.152e6
+name = "Sgr A*"
+
+[spacetime]
+inclination_deg = 30.0
+spin = 0.94
