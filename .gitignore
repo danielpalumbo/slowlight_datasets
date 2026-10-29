@@ -1,0 +1,14 @@
+# Julia
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+# logs and scratch output
+*.log
+scratch/
+# third-party papers stay out of git
+*.pdf
+# movies are heavy and reproducible from the scripts
+*.mp4
+*.gif
+# Claude Code local settings
+.claude/settings.local.json
