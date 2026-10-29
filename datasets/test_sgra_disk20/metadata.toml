@@ -1,0 +1,52 @@
+backend = "CPU"
+created = "2026-10-28T22:42:15.412"
+julia = "1.10.12"
+
+[bands]
+band = [3, 4, 5, 6, 7, 8, 9]
+nu_GHz = [97.5, 145.0, 203.0, 233.0, 343.5, 405.0, 679.0]
+target_Jy = [2.0, 2.1732122917406667, 2.331759654404123, 2.4, 2.1696157675923557, 2.0786696501912587, 1.8173460855143797]
+target_frac_err = [0.1, 0.1, 0.1, 0.1, 0.1, 0.15, 0.2]
+
+[camera]
+fov_M = 48.0
+pixel_M = 0.3779527559055118
+pixels = 128
+rim_flux_fraction_band3 = 0.0025339458796640553
+rim_flux_fraction_band9 = 0.00014175083395927935
+samples_per_ray = 200
+
+[kerrsplat]
+repo = "https://github.com/danielpalumbo/kerrsplat"
+rev = "49e003a8b6f4c34d50c5992878e18b1bc1de475b"
+
+[light_curves]
+dt_M = 2.0
+frames = 251
+t0_M = 0.0
+tmax_M = 500.0
+
+[model]
+T0_K = 2.8353939846708246e11
+beta = 3.0
+density_slope = -2.5954431290743853
+field_pitch_from_vertical_deg = 45.0
+n0_cm3 = 4.586630597227289e7
+rin_M = 2.0
+rout_M = 16.0
+shape_over_r = [0.25, 0.5, 0.3]
+splats = 20
+temperature_slope = -0.17769164968184994
+tuned = true
+tuning_chi2 = 0.2853329604349723
+
+[source]
+GM_over_c2_cm = 6.1326748420039e11
+GM_over_c3_s = 20.45640134817501
+distance_kpc = 8.178
+mass_Msun = 4.152e6
+name = "Sgr A*"
+
+[spacetime]
+inclination_deg = 30.0
+spin = 0.94
