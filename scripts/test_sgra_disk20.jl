@@ -18,13 +18,15 @@
 #           [--tmax 500] [--dt 2] [--spin 0.94] [--inclination 30] [--beta 3] [--no-tune] [--out datasets/test_sgra_disk20]
 #
 # The CUDA backend is used when a functional GPU is present (`--cpu` forces the CPU backend of KernelAbstractions).
-# Writes, under --out: lightcurves.csv (band, frequency, time, Stokes I, Q, U, V in Jy), spectrum.csv (target, the
-# light curves' mean, standard deviation and range, the tuning snapshot), splats.csv (the 20 parameter columns),
-# metadata.toml (the source, spacetime, camera, tuned normalizations and KerrSplat commit) and overview.png.
+# Writes, under --out: lightcurves_band<b>_<ν>GHz.csv for each band (band, frequency, time, Stokes I, Q, U, V in Jy),
+# spectrum.csv (target, the light curves' mean, standard deviation and range, the tuning snapshot), splats.csv (the 20
+# parameter columns), metadata.toml (the source, spacetime, camera, tuned normalizations and KerrSplat commit) and
+# overview.png.
 using CUDA, KernelAbstractions, StaticArrays, LinearAlgebra, Statistics, Printf, Dates, TOML
 using CairoMakie
 using KerrSplat, KerrSplat.Geodesics, KerrSplat.Splats, KerrSplat.Transfer
 const Tr = KerrSplat.Transfer
+include(joinpath(@__DIR__, "mirror.jl")); using .Mirror
 
 getopt(flag, default) = (i = findfirst(==(flag), ARGS); i === nothing ? default : parse(typeof(default), ARGS[i+1]))
 getstr(flag, default) = (i = findfirst(==(flag), ARGS); i === nothing ? default : ARGS[i+1])
@@ -169,10 +171,12 @@ end
 @info "light curves done" frames = length(times) * length(NU) seconds = round(time() - t_lc, digits = 1)
 
 # ---- outputs
-open(joinpath(outdir, "lightcurves.csv"), "w") do io
-    println(io, "band,nu_GHz,t_M,t_s,I_Jy,Q_Jy,U_Jy,V_Jy")
-    for (b, ν) in enumerate(NU), (k, t) in enumerate(times)
-        @printf(io, "%d,%.1f,%.3f,%.3f,%.6e,%.6e,%.6e,%.6e\n", BANDS[b], ν / 1e9, t, t * tg, lc[1, k, b], lc[2, k, b], lc[3, k, b], lc[4, k, b])
+for (b, ν) in enumerate(NU)
+    open(joinpath(outdir, @sprintf("lightcurves_band%d_%gGHz.csv", BANDS[b], ν / 1e9)), "w") do io
+        println(io, "band,nu_GHz,t_M,t_s,I_Jy,Q_Jy,U_Jy,V_Jy")
+        for (k, t) in enumerate(times)
+            @printf(io, "%d,%.1f,%.3f,%.3f,%.6e,%.6e,%.6e,%.6e\n", BANDS[b], ν / 1e9, t, t * tg, lc[1, k, b], lc[2, k, b], lc[3, k, b], lc[4, k, b])
+        end
     end
 end
 Imean = vec(mean(lc[1, :, :]; dims = 1)); Istd = vec(std(lc[1, :, :]; dims = 1))
@@ -264,3 +268,4 @@ rowgap!(right, 6)
 colsize!(fig.layout, 1, Relative(0.33))
 save(joinpath(outdir, "overview.png"), fig, px_per_unit = 2)
 @info "written" outdir total_seconds = round(time() - t_start, digits = 1)
+mirror_dataset(outdir)

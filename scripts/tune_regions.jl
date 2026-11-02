@@ -12,6 +12,7 @@
 using CUDA, KernelAbstractions, StaticArrays, LinearAlgebra, Statistics, Printf, Dates, TOML, Random
 using KerrSplat, KerrSplat.Geodesics, KerrSplat.Splats, KerrSplat.Transfer
 include(joinpath(@__DIR__, "SlowLight.jl")); using .SlowLight
+include(joinpath(@__DIR__, "mirror.jl")); using .Mirror
 const KA = KernelAbstractions
 
 getopt(flag, default) = (i = findfirst(==(flag), ARGS); i === nothing ? default : parse(typeof(default), ARGS[i+1]))
@@ -86,5 +87,6 @@ for region in regions
                                    "chi2" => χ2, "mean_flux_Jy" => F, "snapshot_rms_fraction" => rms, "nactive" => NACTIVE[region],
                                    "parcels" => length(pop), "seed" => TUNING_SEED, "snapshots" => K, "created" => string(now()))
     open(io -> TOML.print(io, results; sorted = true), outfile, "w")
+    mirror_dataset(outfile)
     @info "tuned $region" x χ2 flux = round.(F, digits = 3) snapshot_rms = round.(rms, digits = 3); flush(stderr)
 end

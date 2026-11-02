@@ -12,3 +12,5 @@ scratch/
 *.gif
 # Claude Code local settings
 .claude/settings.local.json
+# the local mirror of datasets/ (scripts/mirror.jl)
+.datasets_mirror

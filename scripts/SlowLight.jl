@@ -11,7 +11,7 @@ const KA = KernelAbstractions
 const Tr = KerrSplat.Transfer
 const Adapt = KerrSplat.Splats.Adapt                     # KerrSplat's own (its manifest version)
 
-export M_SOLAR, D_CM, LUNIT, TUNIT, BANDS, NU, NB, target_flux, FTARGET, FRACERR, ΘUNIT
+export M_SOLAR, D_CM, LUNIT, TUNIT, BANDS, NU, NB, target_flux, FTARGET, FRACERR, ΘUNIT, band_file
 export thermal_synchrotron_k
 export MOVING_SPLAT_PARAMS, NMOVINGPARAMS, MovingSplats, moving_weight, at_rest, MultiBand, OrderState, half_orbit_mino, half_orbit_times
 export critical_curve, RingCamera, ring_camera, render_orders!, frame_flux, frame_parcels, LookbackTable
@@ -35,6 +35,8 @@ const NB = length(NU)
 target_flux(ν) = ν <= 233e9 ? 2.4 * (ν / 233e9)^(log(2.4 / 2.0) / log(233 / 97.5)) : 2.4 * (ν / 233e9)^-0.26
 const FTARGET = target_flux.(NU)
 const FRACERR = (0.10, 0.10, 0.10, 0.10, 0.10, 0.15, 0.20)
+"A dataset's file of light curves `prefix` for the band of index `b`: lightcurves_band6_233GHz.csv, say."
+band_file(prefix, b) = (g = NU[b] / 1e9; string(prefix, "_band", BANDS[b], "_", isinteger(g) ? Int(g) : g, "GHz.csv"))
 
 # ---- kinematics
 "ZAMO-frame γβ along φ̂ of a fluid element rotating rigidly at angular velocity `Ω` at Boyer–Lindquist (r, θ), spin `a`."

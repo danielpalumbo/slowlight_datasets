@@ -18,15 +18,16 @@ those finite-light-speed (slow-light) movies integrated over the screen.
 
 Each dataset directory holds:
 
-- `lightcurves.csv`: one row per (band, time): `band, nu_GHz, t_M, t_s, I_Jy, Q_Jy, U_Jy, V_Jy`. Time is the
+- `lightcurves_band<b>_<ν>GHz.csv`, one file per band (`lightcurves_band3_97.5GHz.csv` …
+  `lightcurves_band9_679GHz.csv`): one row per time, `band, nu_GHz, t_M, t_s, I_Jy, Q_Jy, U_Jy, V_Jy`. Time is the
   observer's, in GM/c³ and in seconds; the Stokes parameters are the total flux densities, integrated over the
   screen (interstellar scattering, which blurs Sgr A*'s image, conserves them), with KerrSplat's conventions (ipole's
   Stokes basis, screen north = +β, east = −α).
-- `lightcurves_by_order.csv` (the region datasets): the same rows split by lensing order, `I_n0_Jy … V_n0_Jy`,
-  `I_n1_Jy … V_n1_Jy`, `I_n2plus_Jy … V_n2plus_Jy`, the light that reached the screen directly, after one
-  half-orbit about the hole, and after more (see [lensing orders](#lensing-orders)); the three sum to
-  `lightcurves.csv`. This is the truth for a light-echo search: hold it back from the light curves if it is a blind
-  test.
+- `lightcurves_by_order_band<b>_<ν>GHz.csv` (the region datasets), one file per band: the same rows split by
+  lensing order, `I_n0_Jy … V_n0_Jy`, `I_n1_Jy … V_n1_Jy`, `I_n2plus_Jy … V_n2plus_Jy`, the light that reached the
+  screen directly, after one half-orbit about the hole, and after more (see [lensing orders](#lensing-orders)); the
+  three sum to the band's light curves. This is the truth for a light-echo search: hold these files back from the
+  light curves if it is a blind test.
 - `spectrum.csv`: per band, the target flux density and its fractional weight, the light curve's mean, standard
   deviation and range; for the test dataset the spectrum of its tuning snapshot, for the region datasets the share
   of the day's light in orders 1 and ≥ 2 and the share each region gives.
@@ -52,6 +53,11 @@ Krang's `main`, not the registered release); `Manifest.toml` carries the version
 `LocalPreferences.toml` pins the CUDA 12.8 runtime (needed on GeForce cards with driver 570; change or delete it on
 other machines). The scripts use a CUDA GPU when one is functional and fall back to the CPU backend of
 KernelAbstractions otherwise (`--cpu` forces it); run with threads on the CPU (`julia -t auto`).
+
+To have the scripts also copy what they write under `datasets/` to another folder (a synced one, say), put its path
+on the first line of a file `.datasets_mirror` at the repository's root (untracked), or in the environment variable
+`SLOWLIGHT_MIRROR`; `scripts/mirror.jl` copies each dataset there once it is written, replacing files but deleting
+none.
 
 ## The test dataset: a 20-splat disk for Sgr A*
 

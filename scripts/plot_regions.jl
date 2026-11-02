@@ -7,6 +7,7 @@ using CUDA, KernelAbstractions, StaticArrays, Statistics, Printf, TOML
 using CairoMakie
 using KerrSplat, KerrSplat.Geodesics, KerrSplat.Splats, KerrSplat.Transfer
 include(joinpath(@__DIR__, "SlowLight.jl")); using .SlowLight
+include(joinpath(@__DIR__, "mirror.jl")); using .Mirror
 const KA = KernelAbstractions
 const Tr = KerrSplat.Transfer
 
@@ -21,8 +22,10 @@ function readcsv(name)
 end
 
 # ---- the data
-lc = readcsv("lightcurves.csv")                       # columns after `band`: nu, t_M, t_s, I, Q, U, V
-bo = readcsv("lightcurves_by_order.csv")              # nu, t_M, t_s, then IQUV of orders 0, 1, ≥2
+"The light curves of every band (one file per band), stacked band by band."
+readbands(prefix) = reduce(vcat, [readcsv(band_file(prefix, b)) for b in 1:NB])
+lc = readbands("lightcurves")                         # columns after `band`: nu, t_M, t_s, I, Q, U, V
+bo = readbands("lightcurves_by_order")                # nu, t_M, t_s, then IQUV of orders 0, 1, ≥2
 sp = readcsv("spectrum.csv")
 nt = size(lc, 1) ÷ NB
 t_M = lc[1:nt, 2]; t_h = lc[1:nt, 3] ./ 3600
@@ -117,3 +120,4 @@ end
 rowsize!(right, NB + 3, Relative(0.14)); rowsize!(right, NB + 4, Relative(0.1))
 save(joinpath(dir, "overview.png"), fig, px_per_unit = 1.5)
 @info "saved" joinpath(dir, "overview.png")
+mirror_dataset(joinpath(dir, "overview.png"))

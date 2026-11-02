@@ -9,12 +9,14 @@
 #     julia -t auto --project=. scripts/sgra_regions.jl --model disk|funnel|jet [--dt 1] [--tmax <a day>] [--cpu]
 #           [--out datasets/sgra_<model>_dominated] [--resume] [--tuning datasets/sgra_regions_tuning.toml] [--share-snapshots 16]
 #
-# Writes, under --out: lightcurves.csv (band, frequency, time, Stokes I, Q, U, V in Jy), lightcurves_by_order.csv
-# (the same per lensing order), spectrum.csv, parcels.csv (every parcel's region and parameters) and metadata.toml;
-# scripts/plot_regions.jl draws overview.png from them. A checkpoint of the frames done is kept in scratch/ (--resume continues from it).
+# Writes, under --out, for each band: lightcurves_band<b>_<ν>GHz.csv (band, frequency, time, Stokes I, Q, U, V in Jy)
+# and lightcurves_by_order_band<b>_<ν>GHz.csv (the same per lensing order); then spectrum.csv, parcels.csv (every
+# parcel's region and parameters) and metadata.toml; scripts/plot_regions.jl draws overview.png from them. A
+# checkpoint of the frames done is kept in scratch/ (--resume continues from it).
 using CUDA, KernelAbstractions, StaticArrays, LinearAlgebra, Statistics, Printf, Dates, TOML, Random, Serialization
 using KerrSplat, KerrSplat.Geodesics, KerrSplat.Splats, KerrSplat.Transfer
 include(joinpath(@__DIR__, "SlowLight.jl")); using .SlowLight
+include(joinpath(@__DIR__, "mirror.jl")); using .Mirror
 const KA = KernelAbstractions
 const Tr = KerrSplat.Transfer
 
@@ -81,17 +83,19 @@ end
 # ---- outputs
 I = lc[1, 1, :, :]                                          # (band, time)
 order1 = lc[1, 3, :, :] .- lc[1, 2, :, :]
-open(joinpath(outdir, "lightcurves.csv"), "w") do io
-    println(io, "band,nu_GHz,t_M,t_s,I_Jy,Q_Jy,U_Jy,V_Jy")
-    for b in 1:NB, (k, t) in enumerate(times)
-        @printf(io, "%d,%.1f,%.3f,%.3f,%.6e,%.6e,%.6e,%.6e\n", BANDS[b], NU[b] / 1e9, t, t * TUNIT, lc[1, 1, b, k], lc[2, 1, b, k], lc[3, 1, b, k], lc[4, 1, b, k])
+for b in 1:NB
+    open(joinpath(outdir, band_file("lightcurves", b)), "w") do io
+        println(io, "band,nu_GHz,t_M,t_s,I_Jy,Q_Jy,U_Jy,V_Jy")
+        for (k, t) in enumerate(times)
+            @printf(io, "%d,%.1f,%.3f,%.3f,%.6e,%.6e,%.6e,%.6e\n", BANDS[b], NU[b] / 1e9, t, t * TUNIT, lc[1, 1, b, k], lc[2, 1, b, k], lc[3, 1, b, k], lc[4, 1, b, k])
+        end
     end
-end
-open(joinpath(outdir, "lightcurves_by_order.csv"), "w") do io
-    println(io, "band,nu_GHz,t_M,t_s,", join(("$(s)_n$(o)_Jy" for o in ("0", "1", "2plus") for s in ("I", "Q", "U", "V")), ","))
-    for b in 1:NB, (k, t) in enumerate(times)
-        n0 = lc[:, 2, b, k]; n1 = lc[:, 3, b, k] .- lc[:, 2, b, k]; n2 = lc[:, 1, b, k] .- lc[:, 3, b, k]
-        @printf(io, "%d,%.1f,%.3f,%.3f,%s\n", BANDS[b], NU[b] / 1e9, t, t * TUNIT, join((@sprintf("%.6e", v) for v in vcat(n0, n1, n2)), ","))
+    open(joinpath(outdir, band_file("lightcurves_by_order", b)), "w") do io
+        println(io, "band,nu_GHz,t_M,t_s,", join(("$(s)_n$(o)_Jy" for o in ("0", "1", "2plus") for s in ("I", "Q", "U", "V")), ","))
+        for (k, t) in enumerate(times)
+            n0 = lc[:, 2, b, k]; n1 = lc[:, 3, b, k] .- lc[:, 2, b, k]; n2 = lc[:, 1, b, k] .- lc[:, 3, b, k]
+            @printf(io, "%d,%.1f,%.3f,%.3f,%s\n", BANDS[b], NU[b] / 1e9, t, t * TUNIT, join((@sprintf("%.6e", v) for v in vcat(n0, n1, n2)), ","))
+        end
     end
 end
 Imean = vec(mean(I; dims = 2)); Istd = vec(std(I; dims = 2))
@@ -127,3 +131,4 @@ meta = Dict(
 )
 open(io -> TOML.print(io, meta; sorted = true), joinpath(outdir, "metadata.toml"), "w")
 @info "written" outdir; flush(stderr)
+mirror_dataset(outdir)
