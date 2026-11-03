@@ -42,6 +42,9 @@ Each dataset directory holds:
 - `metadata.toml`: the source (mass, distance, GM/c² and GM/c³), spin and inclination, camera, time grid, tuned
   normalizations, and the KerrSplat commit that rendered it.
 - `overview.png`: images of the model, its spectrum against the target, and the light curves.
+- `movie_lightcurves_by_order_band6_233GHz.csv`, `movie_metadata.toml` and `movie_band6_233GHz.mp4` (the region
+  datasets; the mp4 not in git): the day's movie at band 6, split by lensing order, and its light curves (see
+  [movies](#movies)).
 
 ## Setup
 
@@ -225,6 +228,44 @@ the bit; the seven-band consumer equals KerrSplat's `RadiativeTransport` band by
 precomputed Bessel functions are KerrSplat's to the bit; the per-frame parcel boxes cull nothing that would count;
 the order split of a thin disk equals KerrSplat's `nmax` truncation; τ½ matches the spacing of the marched rays'
 polar turning points.
+
+<a id="movies"></a>
+## Movies of the region datasets
+
+    scripts/run_movies.sh                                        # the three days at band 6, one after the other
+
+`scripts/movie_regions.jl` redraws a region dataset's parcels (same tuning, same seed) and renders its day at band 6
+(233 GHz) on a uniform grid of 240 × 240 rays every 2 M (2113 frames, 41 s apart), split by lensing order as the
+light curves are; `scripts/draw_movie.jl` then draws the mp4. The field of each model holds nearly all of its light,
+and its pixels resolve the n = 1 ring; the grid's light curves against the dataset's (ring camera) at the same times:
+
+| model | field | pixel | order 0, grid / ring camera (mean, range) | order 1 | time |
+|---|---|---|---|---|---|
+| disk-dominated | 40 M | 0.167 M (0.84 μas) | 0.997 (0.957–1.002) | 1.000 (0.987–1.019) | 1.4 h |
+| funnel-dominated | 32 M | 0.134 M (0.67 μas) | 0.996 (0.920–1.003) | 1.001 (0.996–1.008) | 1.1 h |
+| jet-dominated | 60 M | 0.251 M (1.26 μas) | 0.999 (0.987–1.002) | 0.998 (0.941–1.039) | 1.4 h |
+
+The grid falls short of the ring camera in order 0 by the light outside its field: rarely more than 2% (in 1% of
+the disk model's frames and 3% of the funnel's), at most 8%, in a flare of the funnel model at 6.7 h whose halo
+spills past its field. It scatters about the ring camera in order 1 by its coarser sampling of the ring, most in the
+jet model, whose pixels are largest and whose order-1 light is smallest (1% rms). The ring camera's files remain the
+reference; the movie's light curves are the sums of its own images. A model's movie writes:
+
+- `movie_band6_233GHz.mp4` in the dataset's directory, not in git (the datasets mirror holds a copy): 1920 × 1152 at
+  30 fps, 70 s for the day. All the light, the direct light (order 0) and the order-1 light side by side in
+  brightness temperature on linear scales (the first two share one, order 1 has its own; each saturates only in the
+  brightest tenth of the frames), the critical curve dashed, over two scrolling hours of the light curves by order.
+- `movie_lightcurves_by_order_band6_233GHz.csv` in the dataset's directory: the grid's flux densities by order, in
+  the columns of the `lightcurves_by_order` files.
+- `movie_metadata.toml` in the dataset's directory: the grid, field and pixel size, the times, the cubes' layout, and
+  the grid-to-ring-camera ratios above.
+- `movies/sgra_<model>_dominated_band6_{all,n0,n1}.npy`, not in git (1.46 GB a model): the images, float32 NumPy
+  arrays of shape (frames, 240, 240) in Jy per pixel (all the light, order 0, order 1; orders ≥ 2 are all − n0 − n1),
+  indexed `[frame, β, α]` with β up and α right, so `imshow(cube[k], origin="lower", extent=(-f/2, f/2, -f/2, f/2))`
+  for a field f. Each frame sums to its row of the movie's light curves.
+
+`scripts/run_movies.sh [models...]` resumes a model from its checkpoint in `scratch/` (every 50 frames); drawing a
+movie again from its cubes takes a minute (`julia --project=. scripts/draw_movie.jl datasets/sgra_<model>_dominated`).
 
 ## License
 

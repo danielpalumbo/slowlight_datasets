@@ -1,0 +1,39 @@
+band = 6
+created = "2026-11-02T17:54:41.400"
+cutoff = 0.0001
+dt_M = 2.0
+dt_s = 40.91280269635002
+fov_M = 40.0
+frames = 2113
+inclination_deg = 30.0
+lightcurves = "movie_lightcurves_by_order_band6_233GHz.csv"
+model = "disk"
+mp4 = "movie_band6_233GHz.mp4"
+nu_GHz = 233.0
+pixel_M = 0.16736401673640167
+pixel_uas = 0.8389565169512545
+res = 240
+samples_per_ray = 160
+spin = 0.94
+t0_M = 0.0
+tmax_M = 4224.0
+
+[cubes]
+alpha_beta_range_M = [-20.0, 20.0]
+dtype = "float32"
+files = ["sgra_disk_dominated_band6_all.npy", "sgra_disk_dominated_band6_n0.npy", "sgra_disk_dominated_band6_n1.npy"]
+index = "[frame, beta, alpha], beta up and alpha right (origin lower)"
+parts = ["all the light", "order 0 (direct)", "order 1 (one half-orbit)"]
+shape = [2113, 240, 240]
+units = "Jy per pixel"
+where = "not in git (about 1461 MB); regenerate with scripts/movie_regions.jl"
+
+[grid_over_ring_camera_I.order0]
+max = 1.002470497779442
+mean = 0.9972252330984221
+min = 0.9571971451244422
+
+[grid_over_ring_camera_I.order1]
+max = 1.0185419483126574
+mean = 1.0001161357029165
+min = 0.9866251025802959

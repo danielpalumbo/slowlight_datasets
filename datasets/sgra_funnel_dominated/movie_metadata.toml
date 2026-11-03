@@ -1,0 +1,39 @@
+band = 6
+created = "2026-11-02T18:59:42.818"
+cutoff = 0.0001
+dt_M = 2.0
+dt_s = 40.91280269635002
+fov_M = 32.0
+frames = 2113
+inclination_deg = 30.0
+lightcurves = "movie_lightcurves_by_order_band6_233GHz.csv"
+model = "funnel"
+mp4 = "movie_band6_233GHz.mp4"
+nu_GHz = 233.0
+pixel_M = 0.13389121338912133
+pixel_uas = 0.6711652135610036
+res = 240
+samples_per_ray = 160
+spin = 0.94
+t0_M = 0.0
+tmax_M = 4224.0
+
+[cubes]
+alpha_beta_range_M = [-16.0, 16.0]
+dtype = "float32"
+files = ["sgra_funnel_dominated_band6_all.npy", "sgra_funnel_dominated_band6_n0.npy", "sgra_funnel_dominated_band6_n1.npy"]
+index = "[frame, beta, alpha], beta up and alpha right (origin lower)"
+parts = ["all the light", "order 0 (direct)", "order 1 (one half-orbit)"]
+shape = [2113, 240, 240]
+units = "Jy per pixel"
+where = "not in git (about 1461 MB); regenerate with scripts/movie_regions.jl"
+
+[grid_over_ring_camera_I.order0]
+max = 1.0030201118023407
+mean = 0.9964287432924891
+min = 0.9201633092876274
+
+[grid_over_ring_camera_I.order1]
+max = 1.0075787077517646
+mean = 1.0006861447084618
+min = 0.9959495986100141

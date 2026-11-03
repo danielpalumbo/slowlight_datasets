@@ -14,3 +14,5 @@ scratch/
 .claude/settings.local.json
 # the local mirror of datasets/ (scripts/mirror.jl)
 .datasets_mirror
+# movie image cubes (scripts/movie_regions.jl), a gigabyte or so a model
+movies/
